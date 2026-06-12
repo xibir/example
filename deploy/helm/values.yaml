@@ -1,0 +1,56 @@
+backend:
+    replicaCount: 1
+    imagePullPolicy: IfNotPresent
+    podLabels:
+        component: xibir-app-backend
+    autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPUUtilizationPercentage: 80%
+        targetMemoryUtilizationPercentage: 80%
+    fpm:
+        image:
+            name: xibir-app-fpm
+            tag: latest
+        livenessProbe: ~
+        readinessProbe: ~
+        port: 9000
+        resources:
+            limits:
+                cpu: 500m
+                memory: 256Mi
+            requests:
+                cpu: 100m
+                memory: 100Mi
+    nginx:
+        image:
+            name: xibir-app-nginx
+            tag: latest
+            pullPolicy: IfNotPresent
+        port: 80
+    service:
+        port: 80
+    ingress:
+        host: xibir.local
+        path: /
+
+mysql:
+    image:
+        repository: mysql
+        tag: "8.0"
+        pullPolicy: IfNotPresent
+
+    auth:
+        rootPassword: root
+        database: app
+        username: app
+        password: app
+
+    service:
+        port: 3306
+
+    persistence:
+        enabled: true
+        size: 1Gi
+        storageClass: ""

@@ -1,0 +1,72 @@
+services:
+  xibir_app_php:
+    container_name: php
+    build:
+      context: .
+      dockerfile: deploy/fpm/Dockerfile
+    user: "1000:www-data"
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/var/www/html
+
+  xibir_app_nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: deploy/nginx/Dockerfile
+    links:
+        -   xibir_app_php
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./deploy/nginx/config/default-docker.conf:/etc/nginx/conf.d/current.conf
+
+  xibir_app_zookeeper:
+    container_name: xibir_app_zookeeper
+    image: bitnamilegacy/zookeeper:3.9
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  xibir_app_kafka:
+    image: bitnamilegacy/kafka:3.6
+    container_name: xibir_app_kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - xibir_app_zookeeper
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=xibir_app_zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+
+  xibir_app_rabbitmq:
+    image: heidiks/rabbitmq-delayed-message-exchange:4.0.2-management
+    container_name: xibir_app_rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - xibir_app_rabbitmq_data:/var/lib/rabbitmq
+
+  xibir_app_mysql:
+    container_name: xibir_app_mysql
+    image: mysql:8
+    command: --sql_mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8 --collation-server=utf8_general_ci
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dbpass
+    volumes:
+      - xibir_app_mysql_data:/var/lib/mysql/
+
+volumes:
+    xibir_app_mysql_data:
+        external: true
+    xibir_app_rabbitmq_data:
+        external: true

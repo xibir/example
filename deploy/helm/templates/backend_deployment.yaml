@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+spec:
+  {{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "helm.labels" . | nindent 8 }}
+        {{- with .Values.backend.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: php-fpm
+          image: "{{ .Values.backend.fpm.image.name }}:{{ .Values.backend.fpm.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.imagePullPolicy }}
+          ports:
+            - name: php-fpm
+              containerPort: {{ .Values.backend.fpm.port }}
+              protocol: TCP
+          {{- with .Values.backend.fpm.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.backend.fpm.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.backend.fpm.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        - name: nginx
+          image: "{{ .Values.backend.nginx.image.name }}:{{ .Values.backend.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.nginx.port }}
+              protocol: TCP

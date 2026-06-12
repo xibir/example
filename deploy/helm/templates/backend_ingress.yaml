@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-backend-ingress
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+  {{- with .Values.backend.ingress.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+  - host: {{ .Values.backend.ingress.host | quote }}
+    http:
+      paths:
+        - path: {{ .Values.backend.ingress.path }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Release.Name }}-backend-svc
+              port:
+               number: {{ .Values.backend.service.port }}
