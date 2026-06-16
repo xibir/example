@@ -15,7 +15,7 @@ class WallerRepository implements WalletRepositoryInterface
         private EntityManagerInterface $entityManager
     ){}
 
-    public function get(string $userId, string $currency, bool $lock = false): Wallet
+    public function get(string $userId, string $currency, bool $lock = false): ?Wallet
     {
         $query = $this->entityManager->createQueryBuilder()
             ->select('w')

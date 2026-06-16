@@ -7,19 +7,31 @@ namespace App\Payment\Domain;
 use App\Order\Domain\ValueObject\OrderId;
 use App\Payment\Domain\ValueObject\PaymentId;
 use App\User\Domain\ValueObject\UserId;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'payments')]
 final class Payment
 {
     private ?\DateTimeImmutable $paidAt = null;
 
     private function __construct(
-        private PaymentId          $id,
-        private OrderId            $orderId,
-        private UserId             $userId,
-        private int                $amountMinor,
-        private string             $currency,
-        private PaymentStatus      $status,
-        private string             $transactionId,
+        #[ORM\Id]
+        #[ORM\Column(type: 'payment_id')]
+        private PaymentId $id,
+        #[ORM\Column(type: 'order_id')]
+        private OrderId $orderId,
+        #[ORM\Column(type: 'user_id')]
+        private UserId $userId,
+        #[ORM\Column(type: 'float')]
+        private float $amountMinor,
+        #[ORM\Column(type: 'string', length: 255)]
+        private string $currency,
+        #[ORM\Column(type: 'enum')]
+        private PaymentStatus $status,
+        #[ORM\Column(type: 'string', length: 255)]
+        private string $transactionId,
+        #[ORM\Column(type: 'date_immutable')]
         private \DateTimeImmutable $createdAt,
     ) {}
 

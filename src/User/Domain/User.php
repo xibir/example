@@ -28,7 +28,9 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         public Email $email,
         #[ORM\Column(type: 'enum', enumType: UserStatus::class)]
         private UserStatus $status,
+        #[ORM\Column(type: 'date_immutable')]
         public \DateTimeImmutable $createdAt,
+        #[ORM\Column(type: 'date_immutable')]
         public \DateTimeImmutable $updatedAt,
     ) {}
 

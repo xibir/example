@@ -7,16 +7,27 @@ namespace App\Order\Domain;
 use App\Order\Domain\ValueObject\OrderId;
 use App\Payment\Domain\ValueObject\PaymentId;
 use App\User\Domain\ValueObject\UserId;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'orders')]
 final class Order
 {
     public function __construct(
+        #[ORM\Id]
+        #[ORM\Column(type: 'order_id')]
         private OrderId $id,
+        #[ORM\Column(type: 'user_id')]
         private UserId $userId,
+        #[ORM\Column(type: 'user_id')]
         private UserId $merchantId,
-        private int $amountMinor,
+        #[ORM\Column(type: 'float')]
+        private float $amountMinor,
+        #[ORM\Column(type: 'string')]
         private string $currency,
+        #[ORM\Column(type: 'string')]
         private string $status = 'new',
+        #[ORM\Column(type: 'payment_id')]
         private ?PaymentId $paymentId = null,
     ) {}
 
