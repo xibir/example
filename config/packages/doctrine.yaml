@@ -11,6 +11,8 @@ doctrine:
         types:
             user_id: App\User\Infrastructure\Doctrine\Type\UserIdType
             email: App\User\Infrastructure\Doctrine\Type\EmailType
+            order_id: App\Order\Infrastructure\Doctrine\Type\OrderIdType
+            payment_id: App\Payment\Infrastructure\Doctrine\Type\PaymentIdType
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
