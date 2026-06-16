@@ -11,7 +11,8 @@ RUN install-php-extensions \
     mcrypt \
     redis-^6 \
     mongodb-^1 \
-    amqp-^2
+    amqp-^2 \
+    rdkafka
 
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 
