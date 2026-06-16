@@ -13,11 +13,22 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $authSecret: '%env(AUTH_SECRET)%'
+            $authDomain: '%env(AUTH_DOMAIN)%'
+            $authTokenExpireSeconds: '%env(AUTH_TOKEN_EXPIRE_SECONDS)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '*/DTO/*'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Order\Domain\OrderRepositoryInterface: '@App\Order\Infrastructure\OrderRepository'
+    App\User\Domain\UserRepositoryInterface: '@App\User\Infrastructure\Doctrine\UserRepository'
+    App\Wallet\Domain\WalletRepositoryInterface: '@App\Wallet\Infrastructure\Doctrine\WallerRepository'
+    App\Payment\Domain\PaymentRepositoryInterface: '@App\Payment\Infrastructure\Doctrine\PaymentRepository'
+
