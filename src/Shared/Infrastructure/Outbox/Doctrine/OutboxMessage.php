@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Outbox\Doctrine;
-use App\Shared\Domain\ValueObject\Uuid;
+
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'outbox_messages')]
@@ -20,23 +21,27 @@ final class OutboxMessage
         public readonly string $payload,
         #[ORM\Column(type: 'enum')]
         public OutboxMessageStatus $status,
-        #[ORM\Column(type: 'string', length: 64)]
-        public readonly string $createdAt,
-        #[ORM\Column(type: 'string', length: 64)]
-        public readonly string $updatedAt,
+        #[ORM\Column(type: 'date_immutable')]
+        public readonly \DateTimeImmutable $updatedAt,
+        #[ORM\Column(type: 'date_immutable')]
+        public readonly \DateTimeImmutable $createdAt,
+        #[ORM\Column(type: 'date_immutable')]
+        public ?\DateTimeImmutable $lockedUntil = null,
+        #[ORM\Column(type: 'date_immutable')]
+        public ?\DateTimeImmutable $nextAttemptAt = null,
     ) {}
 
     public static function fromEvent(object $event): self
     {
-        $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+        $now = new \DateTimeImmutable();
 
         return new self(
-            id: Uuid::newUuid(),
+            id: Uuid::v7(),
             type: $event::class,
             payload: json_encode($event, JSON_THROW_ON_ERROR),
             status: OutboxMessageStatus::NEW,
-            createdAt: $now,
             updatedAt: $now,
+            createdAt: $now,
         );
     }
 }
